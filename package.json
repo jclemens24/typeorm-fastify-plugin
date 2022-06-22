@@ -1,6 +1,6 @@
 {
 	"name": "typeorm-fastify-plugin",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "An updated fastify-typeorm-plugin for Fastify and Typeorm",
 	"main": "./build/plugin.js",
 	"types": "./build/plugin.d.ts",
