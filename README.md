@@ -9,7 +9,7 @@ Yes, you are right, it does and it works fine. This plugin was created because f
 ## Install
 
 ```bash
-npm install fastify-orm-plugin
+npm install typeorm-fastify-plugin
 ```
 
 ## Usage
