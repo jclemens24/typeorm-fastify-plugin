@@ -13,8 +13,8 @@ test('MySQL instance should be available', async t => {
 		port: 3306,
 		type: 'mysql',
 		database: 'test_db',
-		username: 'jclemens',
-		password: 'qzpm*QZPM24',
+		username: 'travis',
+		password: '',
 	});
 
 	await fastify.ready();
@@ -31,8 +31,8 @@ test('Should be able to pass a connection', async t => {
 		port: 3306,
 		type: 'mysql',
 		database: 'test_db',
-		username: 'jclemens',
-		password: 'qzpm*QZPM24',
+		username: 'travis',
+		password: '',
 	});
 
 	fastify.register(plugin, { connection: connection });

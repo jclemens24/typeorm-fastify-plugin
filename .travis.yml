@@ -7,8 +7,6 @@ before_script:
 node_js:
   - '16'
 
-os: windows
-
 services:
   - mysql
 
