@@ -1,7 +1,7 @@
 import tap from 'tap';
 import Fastify from 'fastify';
 import { DataSource } from 'typeorm';
-import plugin from '../src/index';
+import plugin from '../src/plugin';
 
 const test = tap.test;
 

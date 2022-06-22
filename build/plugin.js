@@ -23,4 +23,4 @@ exports.default = (0, fastify_plugin_1.default)(pluginAsync, {
     fastify: '4.x',
     name: '@fastify-typeorm',
 });
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=plugin.js.map
