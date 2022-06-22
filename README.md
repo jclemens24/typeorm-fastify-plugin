@@ -1,4 +1,4 @@
-# fastify-orm-plugin
+# typeorm-fastify-plugin
 
 A Fastify plugin that connects fastify to TypeORM database connection. [Uses TypeORM](https://typeorm.io/)
 
