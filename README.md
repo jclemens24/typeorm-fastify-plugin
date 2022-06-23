@@ -1,5 +1,7 @@
 # typeorm-fastify-plugin
 
+![Travis (.org)](https://img.shields.io/travis/jclemens24/fastify-typeorm?style=plastic)
+
 A Fastify plugin that connects fastify to TypeORM database connection. [Uses TypeORM](https://typeorm.io/)
 
 > Why another plugin? Doesn't fastify-typeorm-plugin exist?

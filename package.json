@@ -9,7 +9,7 @@
 		"build": "tsc -p tsconfig.json"
 	},
 	"author": "Jordan Clemens",
-	"license": "ISC",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/jclemens24/fastify-typeorm.git"

@@ -1,5 +1,7 @@
 language: node_js
 
+cache: npm
+
 before_install:
   - mysql -e 'CREATE DATABASE test_db;'
 
