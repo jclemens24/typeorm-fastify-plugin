@@ -35,6 +35,7 @@ jobs:
     steps:
       - name: Setup MySQL Database
         run: |
+          sudo /etc/init.d/mysql start
           mysql -e 'CREATE DATABASE IF NOT EXISTS ${{ env.DATABASE_NAME }};' -u${{ env.DATABASE_USERNAME }} -p${{ env.DATABASE_PASSWORD }}
       - uses: actions/checkout@v3
       - name: Use Node.js
