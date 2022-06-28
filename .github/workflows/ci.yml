@@ -20,12 +20,11 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
-          - 18
           - 16
           - 14
     env:
       DATABASE_NAME: test_db
-      DATABASE_USERNAME: jclemens
+      DATABASE_USERNAME: root
       DATABASE_PASSWORD: qzpm*QZPM24
     steps:
       - name: Setup MySQL Database
