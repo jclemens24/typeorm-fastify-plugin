@@ -1,12 +1,42 @@
-name: tests
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
 
 jobs:
-  run-unit-tests:
+  test:
+    name: Node.js ${{ matrix.node-version }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 18
+          - 16
+          - 14
+    env:
+      DATABASE_NAME: test_db
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: root
     steps:
+      - name: Setup MySQL Database
+        run: |
+          mysql -e 'CREATE DATABASE IF NOT EXISTS ${{ env.DATABASE_NAME }};' -u${{ env.DATABASE_USERNAME }} -p${{ env.DATABASE_PASSWORD }}
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
