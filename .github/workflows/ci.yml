@@ -13,7 +13,7 @@ on:
 jobs:
   test:
     name: Node.js ${{ matrix.node-version }}
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read
     strategy:
@@ -25,10 +25,12 @@ jobs:
           - 14
     env:
       DATABASE_NAME: test_db
+      DATABASE_USERNAME: jclemens
+      DATABASE_PASSWORD: qzpm*QZPM24
     steps:
       - name: Setup MySQL Database
         run: |
-          mysql -e 'CREATE DATABASE IF NOT EXISTS ${{ env.DATABASE_NAME }};'
+          mysql -e 'CREATE DATABASE IF NOT EXISTS ${{ env.DATABASE_NAME }}; -u${{ env.DATABASE_USERNAME }} -p${{ env.DATABASE_PASSWORD }}'
       - uses: actions/checkout@v3
       - name: Use Node.js
         uses: actions/setup-node@v3
