@@ -23,11 +23,6 @@ jobs:
           - 18
           - 16
           - 14
-    services:
-      mysql:
-        image: mysql
-        ports:
-          - 3306:3306
     env:
       DATABASE_NAME: test_db
       DATABASE_USERNAME: jclemens
