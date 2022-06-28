@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Setup MySQL Database
         run: |
-          mysql -e 'CREATE DATABASE IF NOT EXISTS ${{ env.DATABASE_NAME }}; -u${{ env.DATABASE_USERNAME }} -p${{ env.DATABASE_PASSWORD }}'
+          mysql -e 'CREATE DATABASE IF NOT EXISTS ${{ env.DATABASE_NAME }};' -u${{ env.DATABASE_USERNAME }} -p${{ env.DATABASE_PASSWORD }}
       - uses: actions/checkout@v3
       - name: Use Node.js
         uses: actions/setup-node@v3
