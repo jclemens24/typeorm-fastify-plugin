@@ -57,6 +57,7 @@ You can also pass your connection as _connection_
 ```javascript
 const fastify = require('fastify');
 const fastifyTypeOrmPlugin = require('typeorm-fastify-plugin');
+const { DataSource } = require('typeorm');
 
 const connection = new DataSource({
 	host: 'localhost',

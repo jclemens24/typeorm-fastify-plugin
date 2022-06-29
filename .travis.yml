@@ -11,10 +11,10 @@ before_install:
 
 before_script:
   - npm i -g typescript
-  - tsc
 
 node_js:
   - '16'
+  - '14'
 
 services:
   - mysql
