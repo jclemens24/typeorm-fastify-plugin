@@ -17,11 +17,13 @@ npm install typeorm-fastify-plugin
 ## Usage
 
 ```javascript
-const fastify = require('fastify');
-const fastifyORMPlugin = require('typeorm-fastify-plugin');
+const Fastify = require('fastify');
+const fastifyTypeormPlugin = require('typeorm-fastify-plugin');
+
+const fastify = Fastify();
 
 fastify
-	.register(fastifyORMPlugin, {
+	.register(fastifyTypeormPlugin, {
 		host: 'localhost',
 		port: 3306,
 		type: 'mysql',
@@ -56,7 +58,7 @@ You can also pass your connection as _connection_
 
 ```javascript
 const fastify = require('fastify');
-const fastifyTypeOrmPlugin = require('typeorm-fastify-plugin');
+const fastifyTypeormPlugin = require('typeorm-fastify-plugin');
 const { DataSource } = require('typeorm');
 
 const connection = new DataSource({
@@ -68,7 +70,7 @@ const connection = new DataSource({
 	password: 'your_database_password',
 });
 
-fastify.register(fastifyTypeOrmPlugin, { connection: connection });
+fastify.register(fastifyTypeormPlugin, { connection: connection });
 ```
 
 Note: You need to install the proper driver as a dependency. For example, if using MySQL, install mysql or mysql2.
@@ -86,3 +88,31 @@ fastify.register(plugin, {
 	/* your config options here */
 });
 ```
+
+---
+
+## Usage With Multiple Namespaces
+
+Typorm allows you to use multiple `DataSource` instances across your application globally. It only makes sense that this plugin would enable the developer to do the same thing. Using a namespace is easy but is completely optional.
+
+```javascript
+import Fastify from 'fastify';
+import plugin from 'typeorm-fastify-plugin';
+
+const fastify = Fastify();
+fastify.register(plugin, {
+	namespace: 'postgres1',
+	host: 'localhost',
+	port: 5432,
+	username: 'test',
+	password: 'test',
+	database: 'test_db',
+	type: 'postgres',
+});
+```
+
+This is the only way to initialize a "namespaced" instance using this plugin. This is due to the fact that the `namespace` property does not exist on `DataSourceOptions`.
+
+The namespace will be available everywhere your fastify server is. For example, to access the namespace we declared in the above code: `fastify.orm['postgres1'].getRepository()`
+
+This is the default behavior of wrapping code in `fastify-plugin` module;

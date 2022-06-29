@@ -43,6 +43,56 @@ test('Should be able to pass a connection', async t => {
 	await fastify.close();
 });
 
+test('Should be able to initialize a namespace', async t => {
+	const fastify = Fastify();
+
+	fastify.register(plugin, {
+		namespace: 'mysql1',
+		type: 'mysql',
+		host: '127.0.0.1',
+		port: 3306,
+		database: 'test_db',
+		username: 'root',
+		password: '',
+	});
+
+	await fastify.ready();
+	t.ok(fastify.orm['mysql1']);
+	await fastify.close();
+});
+
+test('Should reject same namespace used twice', async t => {
+	const fastify = Fastify();
+
+	fastify.register(plugin, {
+		namespace: 'mysql1',
+		type: 'mysql',
+		host: '127.0.0.1',
+		port: 3306,
+		database: 'test_db',
+		username: 'root',
+		password: '',
+	});
+
+	fastify.register(plugin, {
+		namespace: 'mysql1',
+		type: 'mysql',
+		host: '127.0.0.1',
+		port: 3306,
+		database: 'test_db',
+		username: 'root',
+		password: '',
+	});
+
+	try {
+		await fastify.ready();
+		t.fail('should reject same namespace being used twice');
+	} catch (err) {
+		t.ok(err);
+		await fastify.close();
+	}
+});
+
 test('Should reject invalid DataSourceOptions passed', async t => {
 	const fastify = Fastify();
 
