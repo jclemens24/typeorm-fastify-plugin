@@ -58,14 +58,14 @@ You can also pass your connection as _connection_
 const fastify = require('fastify');
 const fastifyTypeOrmPlugin = require('typeorm-fastify-plugin');
 
-const connection = {
+const connection = new DataSource({
 	host: 'localhost',
 	port: 3306,
 	type: 'mysql',
 	database: 'your_database_name',
 	username: 'your_username',
 	password: 'your_database_password',
-};
+});
 
 fastify.register(fastifyTypeOrmPlugin, { connection: connection });
 ```

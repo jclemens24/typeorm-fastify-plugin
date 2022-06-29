@@ -13,8 +13,8 @@ test('MySQL instance should be available', async t => {
 		port: 3306,
 		type: 'mysql',
 		database: 'test_db',
-		username: 'travis',
-		password: '',
+		username: 'root', // default for travis-ci ~travis/.my.cnf
+		password: '', // no password needed
 	});
 
 	await fastify.ready();
@@ -31,7 +31,7 @@ test('Should be able to pass a connection', async t => {
 		port: 3306,
 		type: 'mysql',
 		database: 'test_db',
-		username: 'travis',
+		username: 'root',
 		password: '',
 	});
 

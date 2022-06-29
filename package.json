@@ -5,7 +5,7 @@
 	"main": "./build/plugin.js",
 	"types": "./build/plugin.d.ts",
 	"scripts": {
-		"test": "tap --ts ./test/coverage.ts",
+		"test": " tsc & tap --ts ./test/coverage.ts",
 		"build": "tsc -p tsconfig.json"
 	},
 	"author": "Jordan Clemens",
