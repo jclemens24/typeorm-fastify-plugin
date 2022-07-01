@@ -29,7 +29,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: npm ci
-        run: |
+      - run: |
           sudo systemctl start mysql.service
           mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306']}} --uroot --proot
           mysql -e 'CREATE DATABASE test_db;
