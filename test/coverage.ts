@@ -13,8 +13,8 @@ test('MySQL instance should be available', async t => {
 		port: 3306,
 		type: 'mysql',
 		database: 'test_db',
-		username: 'root', // default for travis-ci ~travis/.my.cnf
-		password: '', // no password needed
+		username: 'jclemens', // default for travis-ci ~travis/.my.cnf
+		password: 'root', // no password needed
 	});
 
 	await fastify.ready();
@@ -31,7 +31,7 @@ test('Should be able to pass a connection', async t => {
 		port: 3306,
 		type: 'mysql',
 		database: 'test_db',
-		username: 'root',
+		username: 'jclemens',
 		password: 'root',
 	});
 
@@ -52,7 +52,7 @@ test('Should be able to initialize a namespace', async t => {
 		host: '127.0.0.1',
 		port: 3306,
 		database: 'test_db',
-		username: 'root',
+		username: 'jclemens',
 		password: 'root',
 	});
 
@@ -70,7 +70,7 @@ test('Should reject same namespace used twice', async t => {
 		host: '127.0.0.1',
 		port: 3306,
 		database: 'test_db',
-		username: 'root',
+		username: 'jclemens',
 		password: 'root',
 	});
 
@@ -80,7 +80,7 @@ test('Should reject same namespace used twice', async t => {
 		host: '127.0.0.1',
 		port: 3306,
 		database: 'test_db',
-		username: 'root',
+		username: 'jclemens',
 		password: 'root',
 	});
 
