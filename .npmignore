@@ -1,0 +1,10 @@
+.editorconfig
+.gitattributes
+.gitignore
+.github
+.nyc_output
+coverage/
+tools/
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+.clinic

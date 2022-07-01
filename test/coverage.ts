@@ -10,11 +10,11 @@ test('MySQL instance should be available', async t => {
 
 	const datasource = fastify.register(plugin, {
 		host: '127.0.0.1',
-		port: 3306,
+		port: 49153,
 		type: 'mysql',
 		database: 'test_db',
-		username: 'root', // default for travis-ci ~travis/.my.cnf
-		password: '', // no password needed
+		username: 'root',
+		password: 'root',
 	});
 
 	await fastify.ready();
@@ -28,11 +28,11 @@ test('Should be able to pass a connection', async t => {
 
 	const connection = new DataSource({
 		host: '127.0.0.1',
-		port: 3306,
+		port: 49153,
 		type: 'mysql',
 		database: 'test_db',
 		username: 'root',
-		password: '',
+		password: 'root',
 	});
 
 	fastify.register(plugin, { connection: connection });
@@ -50,10 +50,10 @@ test('Should be able to initialize a namespace', async t => {
 		namespace: 'mysql1',
 		type: 'mysql',
 		host: '127.0.0.1',
-		port: 3306,
+		port: 49153,
 		database: 'test_db',
 		username: 'root',
-		password: '',
+		password: 'root',
 	});
 
 	await fastify.ready();
@@ -68,20 +68,20 @@ test('Should reject same namespace used twice', async t => {
 		namespace: 'mysql1',
 		type: 'mysql',
 		host: '127.0.0.1',
-		port: 3306,
+		port: 49153,
 		database: 'test_db',
 		username: 'root',
-		password: '',
+		password: 'root',
 	});
 
 	fastify.register(plugin, {
 		namespace: 'mysql1',
 		type: 'mysql',
 		host: '127.0.0.1',
-		port: 3306,
+		port: 49153,
 		database: 'test_db',
 		username: 'root',
-		password: '',
+		password: 'root',
 	});
 
 	try {
