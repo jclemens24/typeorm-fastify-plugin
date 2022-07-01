@@ -2,3 +2,4 @@ node_modules
 
 # nyc test coverage
 .nyc_output
+.travis.yml

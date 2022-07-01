@@ -32,7 +32,7 @@ test('Should be able to pass a connection', async t => {
 		type: 'mysql',
 		database: 'test_db',
 		username: 'root',
-		password: '',
+		password: 'root',
 	});
 
 	fastify.register(plugin, { connection: connection });
@@ -53,7 +53,7 @@ test('Should be able to initialize a namespace', async t => {
 		port: 3306,
 		database: 'test_db',
 		username: 'root',
-		password: '',
+		password: 'root',
 	});
 
 	await fastify.ready();
@@ -71,7 +71,7 @@ test('Should reject same namespace used twice', async t => {
 		port: 3306,
 		database: 'test_db',
 		username: 'root',
-		password: '',
+		password: 'root',
 	});
 
 	fastify.register(plugin, {
@@ -81,7 +81,7 @@ test('Should reject same namespace used twice', async t => {
 		port: 3306,
 		database: 'test_db',
 		username: 'root',
-		password: '',
+		password: 'root',
 	});
 
 	try {
