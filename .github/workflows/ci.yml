@@ -21,7 +21,7 @@ jobs:
           MYSQL_USER: jclemens
           MYSQL_PASSWORD: root
         ports:
-          - 3306
+          - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
@@ -34,5 +34,8 @@ jobs:
       - run: npm ci
       - run: |
           sudo service mysql start
+        env:
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_PORT: 3306
       - run: npm run build --if-present
       - run: npm test
