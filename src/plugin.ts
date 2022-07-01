@@ -9,7 +9,6 @@ declare module 'fastify' {
 }
 
 // Declaring Multiple DataSources in a Project requires creation of namespace
-// Delete me
 declare namespace FastifyTypeormInstance {
 	interface FastifyTypeormNamespace {
 		[namespace: string]: DataSource;
