@@ -32,6 +32,6 @@ jobs:
       - run: |
           sudo systemctl start mysql.service
           mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306']}} --uroot --proot
-          mysql -e 'CREATE DATABASE test_db;
+          mysql -e CREATE DATABASE test_db;
       - run: npm run build --if-present
       - run: npm test
