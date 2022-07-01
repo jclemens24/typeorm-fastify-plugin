@@ -34,8 +34,5 @@ jobs:
       - run: npm ci
       - run: |
           sudo service mysql start
-        env:
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_PORT: 3306
       - run: npm run build --if-present
       - run: npm test
