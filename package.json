@@ -22,20 +22,17 @@
   ],
   "homepage": "https://github.com/jclemens24/fastify-typeorm.git#readme",
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/node": "^18.0.1",
     "@types/tap": "^15.0.7",
     "fastify": "^4.2.0",
     "mysql2": "^2.3.3",
     "tap": "^16.3.0",
-    "ts-node": "^10.8.1",
+    "ts-node": "^10.8.2",
     "typescript": "^4.7.4"
   },
   "dependencies": {
     "fastify-plugin": "^3.0.1",
-    "typeorm": "^0.3.6"
-  },
-  "peerDependencies": {
-    "typeorm": "^0.3.6"
+    "typeorm": "^0.3.7"
   },
   "exports": {
     ".": "./build/plugin.js"
