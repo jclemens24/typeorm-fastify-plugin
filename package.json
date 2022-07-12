@@ -22,7 +22,7 @@
   ],
   "homepage": "https://github.com/jclemens24/fastify-typeorm.git#readme",
   "devDependencies": {
-    "@types/node": "^18.0.1",
+    "@types/node": "^18.0.3",
     "@types/tap": "^15.0.7",
     "fastify": "^4.2.0",
     "mysql2": "^2.3.3",
@@ -31,7 +31,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "fastify-plugin": "^3.0.1",
+    "fastify-plugin": "^4.0.0",
     "typeorm": "^0.3.7"
   },
   "exports": {
