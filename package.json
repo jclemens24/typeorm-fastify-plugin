@@ -1,6 +1,6 @@
 {
   "name": "typeorm-fastify-plugin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An updated fastify-typeorm-plugin for Fastify and Typeorm",
   "main": "./build/plugin.js",
   "types": "./build/plugin.d.ts",
@@ -12,7 +12,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jclemens24/fastify-typeorm.git"
+    "url": "https://github.com/jclemens24/typeorm-fastify-plugin.git"
   },
   "keywords": [
     "fastify",
@@ -20,7 +20,7 @@
     "fastify-typeorm",
     "plugin"
   ],
-  "homepage": "https://github.com/jclemens24/fastify-typeorm.git#readme",
+  "homepage": "https://github.com/jclemens24/typeorm-fastify-plugin.git#readme",
   "devDependencies": {
     "@types/node": "^18.0.6",
     "@types/tap": "^15.0.7",
