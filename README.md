@@ -1,6 +1,6 @@
 # typeorm-fastify-plugin
 
-![Travis (.org)](https://img.shields.io/travis/jclemens24/fastify-typeorm?style=plastic)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jclemens24/typeorm-fastify-plugin/ci)
 
 A Fastify plugin that connects, organizes, and decorates all your database connections to your Fastify server. [Uses TypeORM](https://typeorm.io/)
 
