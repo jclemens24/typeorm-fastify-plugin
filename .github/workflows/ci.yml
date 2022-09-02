@@ -38,5 +38,4 @@ jobs:
       - run: npm ci
       - run: |
           sudo service mysql start
-      - run: npm run build --if-present
       - run: npm test
