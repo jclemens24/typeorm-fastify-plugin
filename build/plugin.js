@@ -13,13 +13,10 @@ const pluginAsync = async (fastify, options) => {
     else {
         connection = new typeorm_1.DataSource(options);
     }
-    // If a namespace is passed
     if (namespace) {
-        // If fastify instance does not already have orm initialized
         if (!fastify.orm) {
             fastify.decorate('orm', {});
         }
-        // Check if namespace is already used
         if (fastify.orm[namespace]) {
             throw new Error(`This namespace has already been declared: ${namespace}`);
         }
@@ -33,7 +30,6 @@ const pluginAsync = async (fastify, options) => {
             return Promise.resolve();
         }
     }
-    // Else there isn't a namespace, initialize the connection directly on orm
     await connection.initialize();
     fastify.decorate('orm', connection);
     fastify.addHook('onClose', async (fastifyInstance, done) => {
