@@ -36,6 +36,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: npm ci --legacy-peer-deps
+      - run: npm audit fix
       - run: |
           sudo service mysql start
       - run: npm test
