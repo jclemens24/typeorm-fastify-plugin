@@ -11,14 +11,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
-        env:
+    env:
           MYSQL_USER: jclemens
           MYSQL_DATABASE: test_db
           MYSQL_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+    strategy:
+      matrix:
+        node-version: [16.x]
+        
     services:
       mysql:
         image: mysql:latest
