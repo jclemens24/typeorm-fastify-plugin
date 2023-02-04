@@ -18,14 +18,14 @@ jobs:
 
     services:
       mysql:
-        image: mysql
+        image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: test_db
-          MYSQL_USER: jclemens
+          MYSQL_USER: root
           MYSQL_PASSWORD: root
         ports:
-          - 3306
+          - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
@@ -37,5 +37,5 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: |
-          sudo service mysql start
+          mysql --host=127.0.0.1 --user=${{ env.MYSQL_USER }} --password=${{ env.MYSQL_PASSWORD }} ${{ env.MYSQL_DATABASE }}
       - run: npm test
