@@ -41,5 +41,5 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npm audit fix
       - run: |
-          mysql --host=127.0.0.1 --user=${{ env.MYSQL_USER }} --password=${{ env.MYSQL_PASSWORD }} ${{ env.MYSQL_DATABASE }}
+          mysql --host=127.0.0.1 --user=${{ env.MYSQL_USER }} --password=${{ secrets.DATABASE_PASSWORD }} ${{ env.MYSQL_DATABASE }}
       - run: npm test
