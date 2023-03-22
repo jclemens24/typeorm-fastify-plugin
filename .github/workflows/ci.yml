@@ -40,6 +40,10 @@ jobs:
           cache: 'npm'
       - run: npm ci --legacy-peer-deps
       - run: npm audit fix
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE ${{ env.MYSQL_DATABASE }};' -u${{ env.MYSQL_USER }} -p${{ secrets.DATABASE_PASSWORD }}
       - run: |
-          mysql --host=127.0.0.1 --user=${{ env.MYSQL_USER }} --password=${{ secrets.DATABASE_PASSWORD }} ${{ env.MYSQL_DATABASE }}
+          mysql --user=${{ env.MYSQL_USER }} --password=${{ secrets.DATABASE_PASSWORD }} ${{ env.MYSQL_DATABASE }}
       - run: npm test
