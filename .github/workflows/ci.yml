@@ -28,5 +28,5 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci --include=dev
       - run: |
-          sudo /etc/init.d/mysql start mysql -e "CREATE DATABASE ${{ env.MYSQL_DATABASE }};"
+          sudo /etc/init.d/mysql start mysql -e "CREATE DATABASE ${{ env.MYSQL_DATABASE }}; --user=root --password=root"
       - run: npm run test
