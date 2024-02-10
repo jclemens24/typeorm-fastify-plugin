@@ -24,7 +24,7 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_DATABASE: test_db
-          MYSQL_USER: root
+          MYSQL_USER: jclemens24
           MYSQL_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           MYSQL_ROOT_PASSWORD: root
         ports:
