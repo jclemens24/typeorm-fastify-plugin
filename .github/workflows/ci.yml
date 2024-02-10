@@ -12,19 +12,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-          MYSQL_USER: jclemens
-          MYSQL_DATABASE: test_db
-          MYSQL_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      MYSQL_USER: jclemens
+      MYSQL_DATABASE: test_db
+      MYSQL_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
     strategy:
       matrix:
         node-version: [16.x]
-        
+
     services:
       mysql:
         image: mysql:latest
         env:
           MYSQL_DATABASE: test_db
-          MYSQL_USER: jclemens
+          MYSQL_USER: root
           MYSQL_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           MYSQL_ROOT_PASSWORD: root
         ports:
@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci --include=dev
       - run: npm audit fix
       - run: |
           mysql --host=127.0.0.1 --user=${{ env.MYSQL_USER }} --password=${{ secrets.DATABASE_PASSWORD }} ${{ env.MYSQL_DATABASE }}
