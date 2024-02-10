@@ -10,36 +10,23 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [16.x, 14.x]
+    runs-on: ${{ matrix.os }}
     env:
       MYSQL_USER: jclemens
       MYSQL_DATABASE: test_db
       MYSQL_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-    strategy:
-      matrix:
-        node-version: [16.x]
-
-    services:
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: jclemens24
-          MYSQL_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
+      MYSQL_ROOT_PASSWORD: root
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          registry-url: https://registry.npmjs.org
       - run: npm ci --include=dev
-      - run: npm audit fix
       - run: |
-          mysql --host=127.0.0.1 --user=${{ env.MYSQL_USER }} --password=${{ secrets.DATABASE_PASSWORD }} ${{ env.MYSQL_DATABASE }}
-      - run: npm test
+          sudo /etc/init.d/mysql start mysql -e "CREATE DATABASE ${{ env.MYSQL_DATABASE }};"
+      - run: npm run test
