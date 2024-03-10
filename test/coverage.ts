@@ -1,7 +1,18 @@
+/// <reference path="../build/plugin.d.ts" />
+
 import tap from 'tap';
 import Fastify from 'fastify';
 import { DataSource } from 'typeorm';
 import plugin from '../build/plugin.js';
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    orm: DataSource & FastifyTypeormInstance;
+  }
+}
+interface FastifyTypeormInstance {
+  [namespace: string]: DataSource;
+}
 
 const test = tap.test;
 

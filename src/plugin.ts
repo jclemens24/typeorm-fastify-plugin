@@ -3,77 +3,71 @@ import fp from 'fastify-plugin';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
 declare module 'fastify' {
-	export interface FastifyInstance {
-		orm: DataSource & FastifyTypeormInstance.FastifyTypeormNamespace;
-	}
+  export interface FastifyInstance {
+    orm: DataSource & FastifyTypeormInstance;
+  }
 }
-
-// Declaring Multiple DataSources in a Project requires creation of namespace
-declare namespace FastifyTypeormInstance {
-	interface FastifyTypeormNamespace {
-		[namespace: string]: DataSource;
-	}
+interface FastifyTypeormInstance {
+  [namespace: string]: DataSource;
 }
-
-/**
- * @typedef {DBConfigOptions}
- * @property {DataSource} connection - A new DataSource passed to plugin
- * @property {string} namespace - Optional namespace to declare multiple DataSources in your project
- */
 
 type DBConfigOptions = {
-	connection?: DataSource;
-	namespace?: string;
+  connection?: DataSource;
+  namespace?: string;
 } & Partial<DataSourceOptions>;
 
 const pluginAsync: FastifyPluginAsync<DBConfigOptions> = async (
-	fastify,
-	options
+  fastify,
+  options
 ) => {
-	const { namespace } = options;
-	delete options.namespace;
-	let connection: DataSource;
+  const { namespace } = options;
+  delete options.namespace;
+  let connection: DataSource;
 
-	if (options.connection) {
-		connection = options.connection;
-	} else {
-		connection = new DataSource(options as DataSourceOptions);
-	}
+  if (options.connection) {
+    connection = options.connection;
+  } else {
+    connection = new DataSource(options as DataSourceOptions);
+  }
 
-	// If a namespace is passed
-	if (namespace) {
-		// If fastify instance does not already have orm initialized
-		if (!fastify.orm) {
-			fastify.decorate('orm', {});
-		}
+  // If a namespace is passed
+  if (namespace) {
+    // If fastify instance does not already have orm initialized
+    if (!fastify.orm) {
+      // @ts-ignore
+      fastify.decorate('orm', {});
+    }
 
-		// Check if namespace is already used
-		if (fastify.orm[namespace]) {
-			throw new Error(`This namespace has already been declared: ${namespace}`);
-		} else {
-			fastify.orm[namespace] = connection;
-			await fastify.orm[namespace].initialize();
-			fastify.addHook('onClose', async (fastifyInstance, done) => {
-				await fastifyInstance.orm[namespace].destroy();
-				done();
-			});
+    // Check if namespace is already used
+    if (fastify.orm[namespace]) {
+      throw new Error(`This namespace has already been declared: ${namespace}`);
+    } else {
+      fastify.orm[namespace] = connection;
+      await fastify.orm[namespace].initialize();
+      fastify.addHook('onClose', (instance, done) => {
+        instance.orm[namespace].destroy().then(() => {
+          done();
+        });
+      });
 
-			return Promise.resolve();
-		}
-	}
-	// Else there isn't a namespace, initialize the connection directly on orm
+      return;
+    }
+  }
+  // Else there isn't a namespace, initialize the connection directly on orm
 
-	await connection.initialize();
-	fastify.decorate('orm', connection);
-	fastify.addHook('onClose', async (fastifyInstance, done) => {
-		await fastifyInstance.orm.destroy();
-		done();
-	});
+  await connection.initialize();
+  // @ts-ignore
+  fastify.decorate('orm', connection);
+  fastify.addHook('onClose', (fastifyInstance, done) => {
+    fastifyInstance.orm.destroy().then(() => {
+      done();
+    });
+  });
 
-	return Promise.resolve();
+  return Promise.resolve();
 };
 
 export default fp(pluginAsync, {
-	fastify: '4.x',
-	name: '@fastify-typeorm',
+  fastify: '4.x',
+  name: '@fastify-typeorm-plugin',
 });
