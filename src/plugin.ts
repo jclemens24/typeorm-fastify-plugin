@@ -23,7 +23,7 @@ const plugin: FastifyPluginAsync<DatabaseConfigOptions> = async (
 ) => {
   const { namespace } = options;
   delete options.namespace;
-  let datasource;
+  let datasource: DataSource;
 
   if (options.connection) {
     if (!options.connection.options.logger) {

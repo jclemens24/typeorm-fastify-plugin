@@ -5,7 +5,7 @@
   "main": "./build/plugin.js",
   "types": "./build/plugin.d.ts",
   "scripts": {
-    "test": "tsc && tap run ./test/coverage.ts --coverage-report=html --typecheck",
+    "test": "tsc && tap run",
     "build": "tsc -p tsconfig.json"
   },
   "author": "Jordan Clemens",
@@ -29,7 +29,7 @@
     "fastify": "^4.27.0",
     "mysql2": "^3.9.2",
     "sinon": "^18.0.0",
-    "tap": "^18.7.1",
+    "tap": "^19.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },

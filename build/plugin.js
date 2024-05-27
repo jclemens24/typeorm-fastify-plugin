@@ -9,6 +9,9 @@ const plugin = async (fastify, options) => {
     delete options.namespace;
     let datasource;
     if (options.connection) {
+        if (!options.connection.options.logger) {
+            options.connection.logger = new pinoLogger_1.PinoTypeormLogger(fastify.log);
+        }
         datasource = options.connection;
     }
     else {
