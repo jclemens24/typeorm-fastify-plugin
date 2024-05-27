@@ -287,6 +287,8 @@ test('PinoTypeormLogger with console logging', async (t) => {
   ]);
   logger.logQuerySlow(1000, 'SELECT * FROM users', ['param1', 'param2']);
   logger.logSchemaBuild('Schema build successful');
+  t.ok(true);
+  t.end();
 });
 
 test('PinoTypeormLogger with QueryRunner', async (t) => {
@@ -316,4 +318,5 @@ test('PinoTypeormLogger with QueryRunner', async (t) => {
     }),
     'logQuery should call debug with correct arguments'
   );
+  t.end();
 });
