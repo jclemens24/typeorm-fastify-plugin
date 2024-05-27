@@ -82,4 +82,3 @@ coverage-report:
   - text
 
 reporter: base
-color: true
