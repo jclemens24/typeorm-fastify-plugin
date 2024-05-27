@@ -1,33 +1,38 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { PinoTypeormLogger } from './pinoLogger';
 
-declare module 'fastify' {
-  export interface FastifyInstance {
-    orm: DataSource & FastifyTypeormInstance;
-  }
-}
-interface FastifyTypeormInstance {
+interface NamespacedDataSource {
   [namespace: string]: DataSource;
 }
+declare module 'fastify' {
+  export interface FastifyInstance {
+    orm: DataSource & NamespacedDataSource;
+  }
+}
 
-type DBConfigOptions = {
+type DatabaseConfigOptions = {
   connection?: DataSource;
   namespace?: string;
-} & Partial<DataSourceOptions>;
+} & DataSourceOptions;
 
-const pluginAsync: FastifyPluginAsync<DBConfigOptions> = async (
+const plugin: FastifyPluginAsync<DatabaseConfigOptions> = async (
   fastify,
   options
 ) => {
   const { namespace } = options;
   delete options.namespace;
-  let connection: DataSource;
+  let datasource;
 
   if (options.connection) {
-    connection = options.connection;
+    datasource = options.connection;
   } else {
-    connection = new DataSource(options as DataSourceOptions);
+    const opts: DatabaseConfigOptions = {
+      ...options,
+      logger: options.logger || new PinoTypeormLogger(fastify.log),
+    };
+    datasource = new DataSource(opts);
   }
 
   // If a namespace is passed
@@ -42,7 +47,7 @@ const pluginAsync: FastifyPluginAsync<DBConfigOptions> = async (
     if (fastify.orm[namespace]) {
       throw new Error(`This namespace has already been declared: ${namespace}`);
     } else {
-      fastify.orm[namespace] = connection;
+      fastify.orm[namespace] = datasource;
       await fastify.orm[namespace].initialize();
       fastify.addHook('onClose', (instance, done) => {
         instance.orm[namespace].destroy().then(() => {
@@ -55,9 +60,9 @@ const pluginAsync: FastifyPluginAsync<DBConfigOptions> = async (
   }
   // Else there isn't a namespace, initialize the connection directly on orm
 
-  await connection.initialize();
   // @ts-ignore
-  fastify.decorate('orm', connection);
+  fastify.decorate('orm', datasource);
+  await fastify.orm.initialize();
   fastify.addHook('onClose', (fastifyInstance, done) => {
     fastifyInstance.orm.destroy().then(() => {
       done();
@@ -67,7 +72,7 @@ const pluginAsync: FastifyPluginAsync<DBConfigOptions> = async (
   return Promise.resolve();
 };
 
-export default fp(pluginAsync, {
+export default fp(plugin, {
   fastify: '4.x',
   name: '@fastify-typeorm-plugin',
 });
