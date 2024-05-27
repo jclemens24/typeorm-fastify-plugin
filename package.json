@@ -41,7 +41,7 @@
     ".": "./build/plugin.js"
   },
   "tap": {
-    "extends": "./.tap/taprc.yaml",
+    "extends": "./taprc.yaml",
     "tsconfig": "tsconfig.json"
   },
   "engines": {
