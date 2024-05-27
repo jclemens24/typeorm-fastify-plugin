@@ -22,7 +22,7 @@ test('MySQL instance should be available', async (t) => {
   const fastify = Fastify();
 
   const connection = new DataSource({
-    host: 'localhost',
+    host: '127.0.0.1',
     port: 3306,
     type: 'mysql',
     database: 'test_db',
@@ -37,12 +37,6 @@ test('MySQL instance should be available', async (t) => {
   await fastify.ready();
   t.ok(fastify.orm);
   t.equal(fastify.orm, datasource.orm);
-  // Test the logger. Declaring no logger should default to PinoTypeormLogger
-  // const logger = fastify.orm.options.logger as PinoTypeormLogger;
-  // t.ok(
-  //   logger instanceof PinoTypeormLogger,
-  //   'Logger should be an instance of PinoTypeormLogger'
-  // );
   await fastify.close();
 });
 
