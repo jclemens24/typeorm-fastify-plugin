@@ -26,6 +26,9 @@ const plugin: FastifyPluginAsync<DatabaseConfigOptions> = async (
   let datasource;
 
   if (options.connection) {
+    if (!options.connection.options.logger) {
+      options.connection.logger = new PinoTypeormLogger(fastify.log);
+    }
     datasource = options.connection;
   } else {
     const opts: DatabaseConfigOptions = {
