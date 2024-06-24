@@ -22,7 +22,7 @@
   ],
   "homepage": "https://github.com/jclemens24/typeorm-fastify-plugin.git#readme",
   "devDependencies": {
-    "@tapjs/typescript": "^1.4.1",
+    "@tapjs/typescript": "^2.0.0",
     "@types/node": "^20.12.12",
     "@types/sinon": "^17.0.3",
     "@types/tap": "^15.0.11",
