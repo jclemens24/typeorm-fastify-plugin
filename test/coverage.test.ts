@@ -6,15 +6,15 @@ import { DataSource, QueryRunner } from 'typeorm';
 import plugin from '../build/plugin.js';
 import { PinoTypeormLogger } from '../build/pinoLogger.js';
 import sinon from 'sinon';
-import type { NamespacedDataSource } from '../src/plugin.ts';
+import type { PluginDataSource } from '../src/plugin.ts';
+import { get } from 'http';
+
+const getUserName = () => (process.env.GITHUB_ACTIONS ? 'root' : 'testing');
 
 declare module 'fastify' {
   interface FastifyInstance {
-    orm: DataSource & NamespacedDataSource;
+    orm: PluginDataSource;
   }
-}
-interface FastifyTypeormInstance {
-  [namespace: string]: DataSource;
 }
 
 const test = tap.test;
@@ -27,7 +27,7 @@ test('MySQL instance should be available', async (t) => {
     port: 3306,
     type: 'mysql',
     database: 'test_db',
-    username: 'root',
+    username: getUserName(),
     password: 'root',
   });
   const datasource = fastify.register(plugin, {
@@ -48,7 +48,7 @@ test('Logger should log expected message', async (t) => {
     port: 3306,
     type: 'mysql',
     database: 'test_db',
-    username: 'root',
+    username: getUserName(),
     password: 'root',
     logger: logger,
   });
@@ -65,38 +65,22 @@ test('Logger should log expected message', async (t) => {
 test('Should be able to pass a connection', async (t) => {
   const fastify = Fastify();
 
-  // const connection = new DataSource({
-  //   host: '127.0.0.1',
-  //   port: 3306,
-  //   type: 'mysql',
-  //   database: 'test_db',
-  //   username: 'root',
-  //   password: 'root',
-  //   logger: 'simple-console',
-  // });
-
   const connection = new DataSource({
     host: '127.0.0.1',
     port: 3306,
     type: 'mysql',
     database: 'test_db',
-    username: 'root',
+    username: getUserName(),
     password: 'root',
   });
 
   fastify.register(plugin, {
-    host: '127.0.0.1',
-    port: 3306,
-    type: 'mysql',
-    database: 'test_db',
-    username: 'root',
-    password: 'root',
-    logger: 'simple-console',
+    connection: connection,
   });
 
   await fastify.ready();
   t.ok(fastify.orm);
-  // t.equal(fastify.orm, connection);
+  t.equal(fastify.orm, connection);
   await fastify.close();
 });
 
@@ -109,7 +93,7 @@ test('Should be able to initialize a namespace', async (t) => {
     host: '127.0.0.1',
     port: 3306,
     database: 'test_db',
-    username: 'root',
+    username: getUserName(),
     password: 'root',
   });
 
@@ -127,7 +111,7 @@ test('Should reject same namespace used twice', async (t) => {
     host: '127.0.0.1',
     port: 3306,
     database: 'test_db',
-    username: 'root',
+    username: getUserName(),
     password: 'root',
   });
 
@@ -137,7 +121,7 @@ test('Should reject same namespace used twice', async (t) => {
     host: '127.0.0.1',
     port: 3306,
     database: 'test_db',
-    username: 'root',
+    username: getUserName(),
     password: 'root',
   });
 

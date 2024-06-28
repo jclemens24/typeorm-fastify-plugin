@@ -3,13 +3,15 @@ import fp from 'fastify-plugin';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { PinoTypeormLogger } from './pinoLogger.js';
 
-export type NamespacedDataSource = {
-  [namespace: string | symbol]: DataSource;
+type NamespacedDataSource = {
+  [namespace: string]: DataSource;
 };
+
+export type PluginDataSource = DataSource & NamespacedDataSource;
 
 declare module 'fastify' {
   export interface FastifyInstance {
-    orm: DataSource & NamespacedDataSource;
+    orm: PluginDataSource;
   }
 }
 
@@ -65,7 +67,7 @@ const plugin: FastifyPluginAsync<DatabaseConfigOptions> = async (
   }
   // Else there isn't a namespace, initialize the connection directly on orm
 
-  fastify.decorate('orm', datasource as DataSource & NamespacedDataSource);
+  fastify.decorate('orm', datasource as PluginDataSource);
   await fastify.orm.initialize();
   fastify.addHook('onClose', (fastifyInstance, done) => {
     fastifyInstance.orm.destroy().then(() => {

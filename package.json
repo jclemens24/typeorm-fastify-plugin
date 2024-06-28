@@ -1,6 +1,6 @@
 {
   "name": "typeorm-fastify-plugin",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "An updated fastify-typeorm-plugin for Fastify and Typeorm",
   "main": "./build/plugin.js",
   "types": "./build/plugin.d.ts",
@@ -23,6 +23,7 @@
   "homepage": "https://github.com/jclemens24/typeorm-fastify-plugin.git#readme",
   "devDependencies": {
     "@tapjs/typescript": "^2.0.1",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.14.4",
     "@types/sinon": "^17.0.3",
     "@types/tap": "^15.0.11",
@@ -41,7 +42,7 @@
     ".": "./build/plugin.js"
   },
   "tap": {
-    "extends": "./taprc.yaml",
+    "extends": "./.taprc",
     "tsconfig": "tsconfig.json"
   },
   "engines": {

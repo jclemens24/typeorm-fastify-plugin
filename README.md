@@ -114,3 +114,24 @@ This is the only way to initialize a "namespaced" instance using this plugin.
 The namespace will be available everywhere your fastify server is. For example, to access the namespace declared in the above code: `fastify.orm['postgres1'].getRepository()`
 
 This is the default behavior of wrapping code in `fastify-plugin` module;
+
+## Logging
+
+You can pass a custom logger or define one of the built-in loggers exposed through TypeORM logging options. If you do not declare a logger and enable Fastify logging, by default a PinoTypeOrm Logger will be used.
+
+```javascript
+import Fastify from 'fastify';
+import plugin from 'typeorm-fastify-plugin';
+
+const fastify = Fastify();
+fastify.register(plugin, {
+  namespace: 'postgres1',
+  host: 'localhost',
+  port: 5432,
+  username: 'test',
+  password: 'test',
+  database: 'test_db',
+  type: 'postgres',
+  logger: new YourCustomLoggerHere() || 'simple-console' || 'whatever',
+});
+```

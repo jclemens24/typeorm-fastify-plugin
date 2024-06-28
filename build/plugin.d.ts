@@ -1,11 +1,12 @@
 import { FastifyPluginAsync } from 'fastify';
 import { DataSource, DataSourceOptions } from 'typeorm';
-export type NamespacedDataSource = {
-    [namespace: string | symbol]: DataSource;
+type NamespacedDataSource = {
+    [namespace: string]: DataSource;
 };
+export type PluginDataSource = DataSource & NamespacedDataSource;
 declare module 'fastify' {
     interface FastifyInstance {
-        orm: DataSource & NamespacedDataSource;
+        orm: PluginDataSource;
     }
 }
 type DatabaseConfigOptions = {
