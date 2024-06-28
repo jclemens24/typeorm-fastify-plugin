@@ -1,11 +1,12 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { PinoTypeormLogger } from './pinoLogger';
+import { PinoTypeormLogger } from './pinoLogger.js';
 
-interface NamespacedDataSource {
-  [namespace: string]: DataSource;
-}
+export type NamespacedDataSource = {
+  [namespace: string | symbol]: DataSource;
+};
+
 declare module 'fastify' {
   export interface FastifyInstance {
     orm: DataSource & NamespacedDataSource;
@@ -15,7 +16,7 @@ declare module 'fastify' {
 type DatabaseConfigOptions = {
   connection?: DataSource;
   namespace?: string;
-} & DataSourceOptions;
+} & Partial<DataSourceOptions>;
 
 const plugin: FastifyPluginAsync<DatabaseConfigOptions> = async (
   fastify,
@@ -31,24 +32,25 @@ const plugin: FastifyPluginAsync<DatabaseConfigOptions> = async (
     }
     datasource = options.connection;
   } else {
-    const opts: DatabaseConfigOptions = {
+    const opts = {
       ...options,
       logger: options.logger || new PinoTypeormLogger(fastify.log),
     };
-    datasource = new DataSource(opts);
+    datasource = new DataSource(opts as DataSourceOptions);
   }
 
   // If a namespace is passed
   if (namespace) {
     // If fastify instance does not already have orm initialized
     if (!fastify.orm) {
-      // @ts-ignore
-      fastify.decorate('orm', {});
+      fastify.decorate('orm', Object.create(null));
     }
 
     // Check if namespace is already used
     if (fastify.orm[namespace]) {
-      throw new Error(`This namespace has already been declared: ${namespace}`);
+      throw new Error(
+        `Namespace ${namespace} is already in use. Please use a different unique name.`
+      );
     } else {
       fastify.orm[namespace] = datasource;
       await fastify.orm[namespace].initialize();
@@ -58,13 +60,12 @@ const plugin: FastifyPluginAsync<DatabaseConfigOptions> = async (
         });
       });
 
-      return;
+      return Promise.resolve();
     }
   }
   // Else there isn't a namespace, initialize the connection directly on orm
 
-  // @ts-ignore
-  fastify.decorate('orm', datasource);
+  fastify.decorate('orm', datasource as DataSource & NamespacedDataSource);
   await fastify.orm.initialize();
   fastify.addHook('onClose', (fastifyInstance, done) => {
     fastifyInstance.orm.destroy().then(() => {

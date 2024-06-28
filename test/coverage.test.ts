@@ -6,10 +6,11 @@ import { DataSource, QueryRunner } from 'typeorm';
 import plugin from '../build/plugin.js';
 import { PinoTypeormLogger } from '../build/pinoLogger.js';
 import sinon from 'sinon';
+import type { NamespacedDataSource } from '../src/plugin.ts';
 
 declare module 'fastify' {
   interface FastifyInstance {
-    orm: DataSource & FastifyTypeormInstance;
+    orm: DataSource & NamespacedDataSource;
   }
 }
 interface FastifyTypeormInstance {
@@ -31,7 +32,6 @@ test('MySQL instance should be available', async (t) => {
   });
   const datasource = fastify.register(plugin, {
     connection: connection,
-    ...connection.options,
   });
 
   await fastify.ready();
@@ -74,6 +74,15 @@ test('Should be able to pass a connection', async (t) => {
   //   password: 'root',
   //   logger: 'simple-console',
   // });
+
+  const connection = new DataSource({
+    host: '127.0.0.1',
+    port: 3306,
+    type: 'mysql',
+    database: 'test_db',
+    username: 'root',
+    password: 'root',
+  });
 
   fastify.register(plugin, {
     host: '127.0.0.1',
