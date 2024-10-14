@@ -20,19 +20,19 @@ const dbConn = require('typeorm-fastify-plugin');
 const fastify = Fastify();
 
 fastify
-  .register(dbConn, {
-    host: 'localhost',
-    port: 3306,
-    type: 'mysql',
-    database: 'your_database_name',
-    username: 'your_username',
-    password: 'your_database_password',
-    entities: [Users, Products],
-  })
-  .ready();
+	.register(dbConn, {
+		host: 'localhost',
+		port: 3306,
+		type: 'mysql',
+		database: 'your_database_name',
+		username: 'your_username',
+		password: 'your_database_password',
+		entities: [Users, Products]
+	})
+	.ready();
 
 fastify.listen(3000, () => {
-  console.log('Listening on port 3000');
+	console.log('Listening on port 3000');
 });
 ```
 
@@ -40,9 +40,9 @@ routes.js
 
 ```javascript
 const root = async (fastify, opts) => {
-  fastify.get('/', async function (request, reply) {
-    const userRepository = fastify.orm.getRepository(Users);
-  });
+	fastify.get('/', async function (request, reply) {
+		const userRepository = fastify.orm.getRepository(Users);
+	});
 };
 ```
 
@@ -60,12 +60,12 @@ const dbConn = require('typeorm-fastify-plugin');
 const { DataSource } = require('typeorm');
 
 const connection = new DataSource({
-  host: 'localhost',
-  port: 3306,
-  type: 'mysql',
-  database: 'your_database_name',
-  username: 'your_username',
-  password: 'your_database_password',
+	host: 'localhost',
+	port: 3306,
+	type: 'mysql',
+	database: 'your_database_name',
+	username: 'your_username',
+	password: 'your_database_password'
 });
 
 fastify.register(dbConn, { connection: connection });
@@ -83,7 +83,7 @@ import plugin from 'typeorm-fastify-plugin';
 
 const fastify = Fastify();
 fastify.register(plugin, {
-  /* your config options here */
+	/* your config options here */
 });
 ```
 
@@ -99,13 +99,13 @@ import plugin from 'typeorm-fastify-plugin';
 
 const fastify = Fastify();
 fastify.register(plugin, {
-  namespace: 'postgres1',
-  host: 'localhost',
-  port: 5432,
-  username: 'test',
-  password: 'test',
-  database: 'test_db',
-  type: 'postgres',
+	namespace: 'postgres1',
+	host: 'localhost',
+	port: 5432,
+	username: 'test',
+	password: 'test',
+	database: 'test_db',
+	type: 'postgres'
 });
 ```
 
@@ -125,13 +125,13 @@ import plugin from 'typeorm-fastify-plugin';
 
 const fastify = Fastify();
 fastify.register(plugin, {
-  namespace: 'postgres1',
-  host: 'localhost',
-  port: 5432,
-  username: 'test',
-  password: 'test',
-  database: 'test_db',
-  type: 'postgres',
-  logger: new YourCustomLoggerHere() || 'simple-console' || 'whatever',
+	namespace: 'postgres1',
+	host: 'localhost',
+	port: 5432,
+	username: 'test',
+	password: 'test',
+	database: 'test_db',
+	type: 'postgres',
+	logger: new YourCustomLoggerHere() || 'simple-console' || 'whatever'
 });
 ```

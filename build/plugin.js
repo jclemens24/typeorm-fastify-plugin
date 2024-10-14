@@ -17,7 +17,7 @@ const plugin = async (fastify, options) => {
     else {
         const opts = {
             ...options,
-            logger: options.logger || new pinoLogger_js_1.PinoTypeormLogger(fastify.log),
+            logger: options.logger || new pinoLogger_js_1.PinoTypeormLogger(fastify.log)
         };
         datasource = new typeorm_1.DataSource(opts);
     }
@@ -26,7 +26,7 @@ const plugin = async (fastify, options) => {
             fastify.decorate('orm', Object.create(null));
         }
         if (fastify.orm[namespace]) {
-            throw new Error(`Namespace ${namespace} is already in use. Please use a different unique name.`);
+            throw new Error(`Namespace ${namespace} is already in use. Please choose a unique name. Existing namespace are ${Object.keys(fastify.orm).join(', ')}.`);
         }
         else {
             fastify.orm[namespace] = datasource;
@@ -41,15 +41,15 @@ const plugin = async (fastify, options) => {
     }
     fastify.decorate('orm', datasource);
     await fastify.orm.initialize();
-    fastify.addHook('onClose', (fastifyInstance, done) => {
-        fastifyInstance.orm.destroy().then(() => {
+    fastify.addHook('onClose', (instance, done) => {
+        instance.orm.destroy().then(() => {
             done();
         });
     });
     return Promise.resolve();
 };
 exports.default = (0, fastify_plugin_1.default)(plugin, {
-    fastify: '4.x',
-    name: '@fastify-typeorm-plugin',
+    fastify: '5.x',
+    name: 'typeorm-fastify-plugin'
 });
 //# sourceMappingURL=plugin.js.map

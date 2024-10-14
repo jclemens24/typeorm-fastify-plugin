@@ -11,13 +11,13 @@ class PinoTypeormLogger {
     logQueryError(error, query, parameters, queryRunner) {
         this.logger.error({
             msg: `${error} ${this.mergeSql(query, parameters)}`,
-            queryRunner,
+            queryRunner
         });
     }
     logQuerySlow(time, query, parameters, queryRunner) {
         this.logger.warn({
             msg: `Time ${time}ms - ${this.mergeSql(query, parameters)}`,
-            queryRunner,
+            queryRunner
         });
     }
     logSchemaBuild(message, queryRunner) {
@@ -49,9 +49,7 @@ class PinoTypeormLogger {
     }
     mergeSql(query, parameters) {
         return (query +
-            (parameters && parameters.length
-                ? ` -- PARAMETERS: ${this.stringifyParams(parameters)}`
-                : ''));
+            (parameters && parameters.length ? ` -- PARAMETERS: ${this.stringifyParams(parameters)}` : ''));
     }
 }
 exports.PinoTypeormLogger = PinoTypeormLogger;
