@@ -30,7 +30,7 @@
 		"@tapjs/typescript": "^3.1.0",
 		"@types/eslint__js": "^8.42.3",
 		"@types/js-yaml": "^4.0.9",
-		"@types/node": "^22.7.5",
+		"@types/node": "^24.0.13",
 		"@types/react": "^19.1.8",
 		"@types/sinon": "^17.0.3",
 		"@types/tap": "^18.0.0",
