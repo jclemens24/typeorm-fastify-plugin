@@ -49,7 +49,7 @@
 	},
 	"dependencies": {
 		"fastify-plugin": "^5.0.1",
-		"typeorm": "^0.3.20"
+		"typeorm": "^0.3.26"
 	},
 	"exports": {
 		".": "./build/plugin.js"
