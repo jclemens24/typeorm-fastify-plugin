@@ -32,7 +32,7 @@
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^24.9.1",
 		"@types/react": "^19.1.8",
-		"@types/sinon": "^17.0.3",
+		"@types/sinon": "^21.0.0",
 		"@types/tap": "^18.0.0",
 		"concurrently": "^9.0.1",
 		"eslint": "^9.12.0",
