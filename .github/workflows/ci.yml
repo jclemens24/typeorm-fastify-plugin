@@ -23,7 +23,6 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
-          registry-url: https://registry.npmjs.org
       - run: npm ci --include=dev
       - run: npm run test
 
