@@ -40,6 +40,7 @@ test('registers with inline SQLite config', async (t) => {
 	t.ok(fastify.orm.isInitialized, 'datasource should be initialized');
 	t.equal(fastify.orm.options.type, 'better-sqlite3');
 	await fastify.close();
+	t.end();
 });
 
 test('registers with a pre-built DataSource', async (t) => {
@@ -55,6 +56,7 @@ test('registers with a pre-built DataSource', async (t) => {
 	t.ok(fastify.orm.isInitialized);
 	t.equal(fastify.orm, connection, 'orm should be the same DataSource instance');
 	await fastify.close();
+	t.end();
 });
 
 test('assigns PinoTypeormLogger when no logger provided (inline)', async (t) => {
@@ -71,6 +73,7 @@ test('assigns PinoTypeormLogger when no logger provided (inline)', async (t) => 
 		'should use PinoTypeormLogger by default'
 	);
 	await fastify.close();
+	t.end();
 });
 
 test('assigns PinoTypeormLogger to pre-built DataSource without logger', async (t) => {
@@ -89,6 +92,7 @@ test('assigns PinoTypeormLogger to pre-built DataSource without logger', async (
 		'should inject PinoTypeormLogger into pre-built connection'
 	);
 	await fastify.close();
+	t.end();
 });
 
 test('does not overwrite existing logger on pre-built DataSource', async (t) => {
@@ -104,6 +108,7 @@ test('does not overwrite existing logger on pre-built DataSource', async (t) => 
 
 	t.equal(fastify.orm.options.logger, 'advanced-console', 'should preserve the existing logger');
 	await fastify.close();
+	t.end();
 });
 
 test('registers with a namespace', async (t) => {
@@ -119,6 +124,7 @@ test('registers with a namespace', async (t) => {
 	t.ok(store['db1'], 'namespace db1 should exist');
 	t.ok(store['db1'].isInitialized, 'namespace datasource should be initialized');
 	await fastify.close();
+	t.end();
 });
 
 test('registers multiple namespaces', async (t) => {
@@ -140,6 +146,7 @@ test('registers multiple namespaces', async (t) => {
 	t.ok(store['secondary'], 'secondary namespace should exist');
 	t.not(store['primary'], store['secondary'], 'should be distinct DataSource instances');
 	await fastify.close();
+	t.end();
 });
 
 test('rejects duplicate namespace', async (t) => {
@@ -162,6 +169,7 @@ test('rejects duplicate namespace', async (t) => {
 		t.match(String(err), /Namespace dup is already in use/);
 	}
 	await fastify.close();
+	t.end();
 });
 
 test('destroys datasource on close (direct mode)', async (t) => {
@@ -175,6 +183,7 @@ test('destroys datasource on close (direct mode)', async (t) => {
 	t.ok(fastify.orm.isInitialized, 'should be initialized before close');
 	await fastify.close();
 	t.notOk(fastify.orm.isInitialized, 'should be destroyed after close');
+	t.end();
 });
 
 test('destroys datasource on close (namespace mode)', async (t) => {
@@ -190,6 +199,7 @@ test('destroys datasource on close (namespace mode)', async (t) => {
 	t.ok(store['ns1'].isInitialized);
 	await fastify.close();
 	t.notOk(store['ns1'].isInitialized, 'namespace datasource should be destroyed');
+	t.end();
 });
 
 test('healthCheck returns true for initialized SQLite datasource', async (t) => {
@@ -203,6 +213,7 @@ test('healthCheck returns true for initialized SQLite datasource', async (t) => 
 	const result = await healthCheck(fastify.orm);
 	t.equal(result, true);
 	await fastify.close();
+	t.end();
 });
 
 test('healthCheck returns false for uninitialized datasource', async (t) => {
@@ -212,6 +223,7 @@ test('healthCheck returns false for uninitialized datasource', async (t) => {
 	});
 	const result = await healthCheck(ds);
 	t.equal(result, false);
+	t.end();
 });
 
 test('healthCheck returns false after datasource is destroyed', async (t) => {
@@ -226,6 +238,7 @@ test('healthCheck returns false after datasource is destroyed', async (t) => {
 	await fastify.close();
 	const result = await healthCheck(orm);
 	t.equal(result, false);
+	t.end();
 });
 
 test('transact commits on success', async (t) => {
@@ -247,6 +260,7 @@ test('transact commits on success', async (t) => {
 	t.equal(users.length, 1);
 	t.equal(users[0].name, 'Alice');
 	await fastify.close();
+	t.end();
 });
 
 test('transact rolls back on error', async (t) => {
@@ -280,6 +294,7 @@ test('transact rolls back on error', async (t) => {
 	t.equal(users.length, 1, 'rollback should have reverted Charlie insert');
 	t.equal(users[0].name, 'Bob');
 	await fastify.close();
+	t.end();
 });
 
 test('transact returns the callback value', async (t) => {
@@ -300,6 +315,7 @@ test('transact returns the callback value', async (t) => {
 
 	t.type(result, 'number', 'transact should return the callback result');
 	await fastify.close();
+	t.end();
 });
 
 test('warns when synchronize: true in production', async (t) => {
@@ -324,6 +340,7 @@ test('warns when synchronize: true in production', async (t) => {
 	process.env.NODE_ENV = originalEnv;
 	warnSpy.restore();
 	await fastify.close();
+	t.end();
 });
 
 test('does not warn when synchronize: true outside production', async (t) => {
@@ -348,6 +365,7 @@ test('does not warn when synchronize: true outside production', async (t) => {
 	process.env.NODE_ENV = originalEnv;
 	warnSpy.restore();
 	await fastify.close();
+	t.end();
 });
 
 test('succeeds on first attempt without retries configured', async (t) => {
@@ -360,6 +378,7 @@ test('succeeds on first attempt without retries configured', async (t) => {
 	await fastify.ready();
 	t.ok(fastify.orm.isInitialized);
 	await fastify.close();
+	t.end();
 });
 
 test('TypeOrmPluginError exposes connectionDetails without password', async (t) => {
@@ -383,6 +402,7 @@ test('TypeOrmPluginError exposes connectionDetails without password', async (t) 
 	t.equal(error.connectionDetails.port, 5432);
 	t.equal(error.connectionDetails.username, 'admin');
 	t.notOk('password' in error.connectionDetails, 'password must not be in connectionDetails');
+	t.end();
 });
 
 test('throws TypeOrmPluginError on invalid datasource config with retries exhausted', async (t) => {
@@ -403,6 +423,7 @@ test('throws TypeOrmPluginError on invalid datasource config with retries exhaus
 		t.ok((err as TypeOrmPluginError).cause, 'should have a cause');
 	}
 	await fastify.close();
+	t.end();
 });
 
 test('does not mutate the caller options object', async (t) => {
@@ -444,6 +465,7 @@ test('PinoTypeormLogger: logQuery routes to pino.debug', async (t) => {
 
 	t.ok(pino.debug.called, 'debug should be called');
 	t.match(pino.debug.firstCall.args[1], /SELECT 1/, 'should contain query text');
+	t.end();
 });
 
 test('PinoTypeormLogger: logQueryError routes to pino.error', async (t) => {
@@ -453,6 +475,7 @@ test('PinoTypeormLogger: logQueryError routes to pino.error', async (t) => {
 	logger.logQueryError('some error', 'SELECT bad');
 
 	t.ok(pino.error.called, 'error should be called');
+	t.end();
 });
 
 test('PinoTypeormLogger: logQuerySlow routes to pino.warn', async (t) => {
@@ -462,6 +485,7 @@ test('PinoTypeormLogger: logQuerySlow routes to pino.warn', async (t) => {
 	logger.logQuerySlow(5000, 'SELECT slow');
 
 	t.ok(pino.warn.called, 'warn should be called for slow queries');
+	t.end();
 });
 
 test('PinoTypeormLogger: logSchemaBuild routes to pino.debug', async (t) => {
@@ -471,6 +495,7 @@ test('PinoTypeormLogger: logSchemaBuild routes to pino.debug', async (t) => {
 	logger.logSchemaBuild('building schema');
 
 	t.ok(pino.debug.called, 'debug should be called for schema build');
+	t.end();
 });
 
 test('PinoTypeormLogger: logMigration routes to pino.debug', async (t) => {
@@ -480,6 +505,7 @@ test('PinoTypeormLogger: logMigration routes to pino.debug', async (t) => {
 	logger.logMigration('running migration');
 
 	t.ok(pino.debug.called, 'debug should be called for migration');
+	t.end();
 });
 
 test('PinoTypeormLogger: log("info") routes to pino.info', async (t) => {
@@ -489,6 +515,7 @@ test('PinoTypeormLogger: log("info") routes to pino.info', async (t) => {
 	logger.log('info', 'some info message');
 
 	t.ok(pino.info.called, 'info should be called');
+	t.end();
 });
 
 test('PinoTypeormLogger: log("warn") routes to pino.warn', async (t) => {
@@ -498,6 +525,7 @@ test('PinoTypeormLogger: log("warn") routes to pino.warn', async (t) => {
 	logger.log('warn', 'some warning');
 
 	t.ok(pino.warn.called, 'warn should be called');
+	t.end();
 });
 
 test('PinoTypeormLogger: log("log") routes to pino.debug', async (t) => {
@@ -507,6 +535,7 @@ test('PinoTypeormLogger: log("log") routes to pino.debug', async (t) => {
 	logger.log('log', 'general log');
 
 	t.ok(pino.debug.called, 'debug should be called for log level');
+	t.end();
 });
 
 test('PinoTypeormLogger: logQuery with QueryRunner having active transaction', async (t) => {
@@ -524,6 +553,7 @@ test('PinoTypeormLogger: logQuery with QueryRunner having active transaction', a
 	const entry = pino.debug.firstCall.args[0];
 	t.ok(entry.queryRunner, 'should have queryRunner context');
 	t.equal(entry.queryRunner.isTransactionActive, true, 'should capture isTransactionActive');
+	t.end();
 });
 
 test('PinoTypeormLogger: logQuery with QueryRunner having data', async (t) => {
@@ -541,6 +571,7 @@ test('PinoTypeormLogger: logQuery with QueryRunner having data', async (t) => {
 	const entry = pino.debug.firstCall.args[0];
 	t.ok(entry.queryRunner, 'should have queryRunner context');
 	t.equal(entry.queryRunner.data.traceId, 'abc-123', 'should capture data');
+	t.end();
 });
 
 test('PinoTypeormLogger: logQuery with QueryRunner having both transaction and data', async (t) => {
@@ -557,6 +588,7 @@ test('PinoTypeormLogger: logQuery with QueryRunner having both transaction and d
 	const entry = pino.debug.firstCall.args[0];
 	t.equal(entry.queryRunner.isTransactionActive, true);
 	t.equal(entry.queryRunner.data.requestId, 'req-1');
+	t.end();
 });
 
 test('PinoTypeormLogger: logQuery with QueryRunner having no context (empty)', async (t) => {
@@ -573,6 +605,7 @@ test('PinoTypeormLogger: logQuery with QueryRunner having no context (empty)', a
 	t.ok(pino.debug.called, 'debug should still be called');
 	const entry = pino.debug.firstCall.args[0];
 	t.notOk(entry.queryRunner, 'should not include queryRunner when context is empty');
+	t.end();
 });
 
 test('PinoTypeormLogger: logQuery without QueryRunner', async (t) => {
@@ -584,6 +617,7 @@ test('PinoTypeormLogger: logQuery without QueryRunner', async (t) => {
 	t.ok(pino.debug.called, 'debug should be called');
 	const entry = pino.debug.firstCall.args[0];
 	t.notOk(entry.queryRunner, 'should not include queryRunner when not provided');
+	t.end();
 });
 
 test('healthCheck returns false when initialized datasource query throws', async (t) => {
@@ -595,6 +629,7 @@ test('healthCheck returns false when initialized datasource query throws', async
 
 	const result = await healthCheck(ds);
 	t.equal(result, false, 'should return false when query throws');
+	t.end();
 });
 
 test('healthCheck uses SELECT 1 FROM DUAL for oracle', async (t) => {
@@ -608,6 +643,7 @@ test('healthCheck uses SELECT 1 FROM DUAL for oracle', async (t) => {
 	const result = await healthCheck(ds);
 	t.equal(result, true);
 	t.ok(queryStub.calledWith('SELECT 1 FROM DUAL'), 'should use oracle-specific query');
+	t.end();
 });
 
 test('healthCheck uses SELECT now() FROM dummy for sap', async (t) => {
@@ -621,6 +657,7 @@ test('healthCheck uses SELECT now() FROM dummy for sap', async (t) => {
 	const result = await healthCheck(ds);
 	t.equal(result, true);
 	t.ok(queryStub.calledWith('SELECT now() FROM dummy'), 'should use sap-specific query');
+	t.end();
 });
 
 test('healthCheck returns isInitialized for mongodb (no query)', async (t) => {
@@ -631,6 +668,7 @@ test('healthCheck returns isInitialized for mongodb (no query)', async (t) => {
 
 	const result = await healthCheck(ds);
 	t.equal(result, true, 'should return true for initialized mongodb');
+	t.end();
 });
 
 test('healthCheck returns false for uninitialized mongodb', async (t) => {
@@ -641,4 +679,5 @@ test('healthCheck returns false for uninitialized mongodb', async (t) => {
 
 	const result = await healthCheck(ds);
 	t.equal(result, false, 'should return false for uninitialized mongodb');
+	t.end();
 });

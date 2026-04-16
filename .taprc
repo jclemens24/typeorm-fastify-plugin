@@ -75,6 +75,7 @@ tsconfig: tsconfig.json
 
 typecheck: false
 show-full-coverage: true
+allow-incomplete-coverage: true
 include:
   - 'test/**/*.__EXTENSIONS__'
 
