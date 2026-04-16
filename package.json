@@ -83,10 +83,6 @@
 			"default": "./build/pinoLogger.js"
 		}
 	},
-	"tap": {
-		"extends": "./.taprc",
-		"tsconfig": "tsconfig.json"
-	},
 	"engines": {
 		"node": ">=22.0.0"
 	}
