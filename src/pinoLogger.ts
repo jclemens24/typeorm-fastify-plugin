@@ -1,122 +1,111 @@
-import { Logger, QueryRunner } from 'typeorm';
-import { FastifyBaseLogger } from 'fastify';
+import { AbstractLogger } from 'typeorm';
+import type { QueryRunner, LogLevel, LogMessage, LoggerOptions } from 'typeorm';
+import type { FastifyBaseLogger } from 'fastify';
 
 /**
- * Custom logger implementation for TypeORM using Pino logger.
+ * Extracts serialization-safe metadata from a QueryRunner.
+ *
+ * QueryRunner holds the full DataSource, connection pool, and driver —
+ * passing it directly to Pino's JSON serializer would produce
+ * enormous output or circular-reference errors.
  */
-export class PinoTypeormLogger implements Logger {
-	/**
-	 * Creates an instance of PinoTypeormLogger.
-	 * @param logger - The Pino logger instance. FastifyBaseLogger extends pino.BaseLogger.
-	 */
-	constructor(private readonly logger: FastifyBaseLogger) {}
+function extractQueryRunnerContext(queryRunner: QueryRunner): Record<string, unknown> | undefined {
+	const context: Record<string, unknown> = {};
 
-	/**
-	 * Logs a database query.
-	 * @param query - The SQL query.
-	 * @param parameters - The query parameters.
-	 * @param queryRunner - The query runner.
-	 */
-	logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
-		this.logger.debug({ msg: this.mergeSql(query, parameters), queryRunner });
+	if (queryRunner.isTransactionActive) {
+		context.isTransactionActive = true;
 	}
 
+	if (queryRunner.data && Object.keys(queryRunner.data).length > 0) {
+		context.data = queryRunner.data;
+	}
+
+	return Object.keys(context).length > 0 ? context : undefined;
+}
+
+/**
+ * TypeORM logger that routes database logs through Fastify's Pino
+ * instance. Extends {@link AbstractLogger} so the `logging` option
+ * from `DataSourceOptions` is respected automatically.
+ *
+ * Instantiated by the plugin when no custom `logger` is provided.
+ * Consumers can also import and use it directly:
+ *
+ * @example
+ * ```typescript
+ * import { PinoTypeormLogger } from 'typeorm-fastify-plugin';
+ *
+ * const ds = new DataSource({
+ *   type: 'postgres',
+ *   logging: ['query', 'error'],
+ *   logger: new PinoTypeormLogger(fastify.log, ['query', 'error']),
+ * });
+ * ```
+ */
+export class PinoTypeormLogger extends AbstractLogger {
 	/**
-	 * Logs an error that occurred during a database query.
-	 * @param error - The error message or object.
-	 * @param query - The SQL query.
-	 * @param parameters - The query parameters.
-	 * @param queryRunner - The query runner.
+	 * @param pinoLogger - Fastify's Pino logger instance.
+	 * @param options    - Which log categories to emit.
+	 *                     Pass the same value as `DataSourceOptions.logging`.
+	 *                     When omitted, no SQL output is produced (TypeORM default).
 	 */
-	logQueryError(
-		error: string | Error,
-		query: string,
-		parameters?: any[],
-		queryRunner?: QueryRunner
+	constructor(
+		private readonly pinoLogger: FastifyBaseLogger,
+		options?: LoggerOptions
 	) {
-		this.logger.error({
-			msg: `${error} ${this.mergeSql(query, parameters)}`,
+		super(options);
+	}
+
+	/**
+	 * Core logging method called by {@link AbstractLogger} after
+	 * verifying the message's category is enabled.
+	 */
+	protected writeLog(
+		level: LogLevel,
+		logMessage: LogMessage | string | number | (LogMessage | string | number)[],
+		queryRunner?: QueryRunner
+	): void {
+		const messages = this.prepareLogMessages(
+			logMessage,
+			{ highlightSql: false, appendParameterAsComment: true, addColonToPrefix: false },
 			queryRunner
-		});
-	}
-
-	/**
-	 * Logs a slow database query.
-	 * @param time - The execution time of the query in milliseconds.
-	 * @param query - The SQL query.
-	 * @param parameters - The query parameters.
-	 * @param queryRunner - The query runner.
-	 */
-	logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner) {
-		this.logger.warn({
-			msg: `Time ${time}ms - ${this.mergeSql(query, parameters)}`,
-			queryRunner
-		});
-	}
-
-	/**
-	 * Logs a message related to schema building.
-	 * @param message - The log message.
-	 * @param queryRunner - The query runner.
-	 */
-	logSchemaBuild(message: string, queryRunner?: QueryRunner): void {
-		this.logger.debug({ msg: message, queryRunner });
-	}
-
-	/**
-	 * Logs a message related to database migration.
-	 * @param message - The log message.
-	 * @param queryRunner - The query runner.
-	 */
-	logMigration(message: string, queryRunner?: QueryRunner): void {
-		this.logger.debug({ msg: message, queryRunner });
-	}
-
-	/**
-	 * Logs a generic message.
-	 * @param level - The log level.
-	 * @param message - The log message.
-	 * @param queryRunner - The query runner.
-	 */
-	log(level: 'log' | 'info' | 'warn', message: any, queryRunner?: QueryRunner): void {
-		switch (level) {
-			case 'log':
-				this.logger.debug({ msg: message, queryRunner });
-				break;
-
-			case 'info':
-				this.logger.info({ msg: message, queryRunner });
-				break;
-
-			case 'warn':
-				this.logger.warn({ msg: message, queryRunner });
-				break;
-		}
-	}
-
-	/**
-	 * Converts the query parameters to a string representation.
-	 * @param parameters - The query parameters.
-	 * @returns The string representation of the parameters.
-	 */
-	protected stringifyParams(parameters: any[]): string {
-		try {
-			return JSON.stringify(parameters);
-		} catch (error: unknown) {
-			return `${error}`;
-		}
-	}
-
-	/**
-	 * Merges the SQL query and parameters into a single string.
-	 * @param query - The SQL query.
-	 * @param parameters - The query parameters.
-	 * @returns The merged string.
-	 */
-	protected mergeSql(query: string, parameters?: any[]): string {
-		return (
-			query +
-			(parameters && parameters.length ? ` -- PARAMETERS: ${this.stringifyParams(parameters)}` : '')
 		);
+
+		const context = queryRunner ? extractQueryRunnerContext(queryRunner) : undefined;
+
+		for (const message of messages) {
+			const entry: Record<string, unknown> = {};
+			if (context) {
+				entry.queryRunner = context;
+			}
+			if (message.prefix) {
+				entry.prefix = message.prefix;
+			}
+
+			const text = String(message.message);
+
+			switch (message.type ?? level) {
+				case 'query':
+				case 'log':
+				case 'schema-build':
+				case 'migration':
+					this.pinoLogger.debug(entry, text);
+					break;
+
+				case 'info':
+					this.pinoLogger.info(entry, text);
+					break;
+
+				case 'warn':
+				case 'query-slow':
+					this.pinoLogger.warn(entry, text);
+					break;
+
+				case 'error':
+				case 'query-error':
+					this.pinoLogger.error(entry, text);
+					break;
+			}
+		}
 	}
 }

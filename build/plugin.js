@@ -1,55 +1,121 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
-const fastify_plugin_1 = tslib_1.__importDefault(require("fastify-plugin"));
-const typeorm_1 = require("typeorm");
-const pinoLogger_js_1 = require("./pinoLogger.js");
-const plugin = async (fastify, options) => {
-    const { namespace } = options;
-    delete options.namespace;
-    let datasource;
-    if (options.connection) {
-        if (!options.connection.options.logger) {
-            options.connection.logger = new pinoLogger_js_1.PinoTypeormLogger(fastify.log);
+import fp from 'fastify-plugin';
+import { DataSource } from 'typeorm';
+import { PinoTypeormLogger } from './pinoLogger.js';
+export { PinoTypeormLogger } from './pinoLogger.js';
+export class TypeOrmPluginError extends Error {
+    cause;
+    connectionDetails;
+    constructor(message, dsOptions, cause) {
+        super(message);
+        this.cause = cause;
+        this.name = 'TypeOrmPluginError';
+        this.connectionDetails = sanitizeConnectionDetails(dsOptions);
+    }
+}
+function sanitizeConnectionDetails(options) {
+    const opts = options;
+    return {
+        type: opts.type,
+        host: opts.host,
+        port: opts.port,
+        database: opts.database,
+        username: opts.username
+    };
+}
+export async function healthCheck(datasource) {
+    if (!datasource.isInitialized)
+        return false;
+    try {
+        const query = getHealthCheckQuery(datasource.options.type);
+        if (!query)
+            return datasource.isInitialized;
+        await datasource.query(query);
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
+function getHealthCheckQuery(dbType) {
+    switch (dbType) {
+        case 'oracle':
+            return 'SELECT 1 FROM DUAL';
+        case 'sap':
+            return 'SELECT now() FROM dummy';
+        case 'mongodb':
+            return null;
+        default:
+            return 'SELECT 1';
+    }
+}
+export async function transact(datasource, callback) {
+    return datasource.transaction(callback);
+}
+async function initializeWithRetry(datasource, retries, retryDelay, log) {
+    const maxAttempts = retries + 1;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            await datasource.initialize();
+            return;
         }
-        datasource = options.connection;
+        catch (error) {
+            if (attempt === maxAttempts) {
+                throw new TypeOrmPluginError(`Failed to initialize DataSource after ${maxAttempts} attempt(s)`, datasource.options, error);
+            }
+            const delay = retryDelay * Math.pow(2, attempt - 1);
+            log.warn(`typeorm-fastify-plugin: connection attempt ${attempt}/${maxAttempts} failed, retrying in ${delay}ms`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+    }
+}
+const plugin = async (fastify, options) => {
+    const { namespace, connection, retries = 0, retryDelay = 1000, ...rest } = options;
+    let datasource;
+    if (connection) {
+        if (!connection.options.logger) {
+            Object.assign(connection.options, {
+                logger: new PinoTypeormLogger(fastify.log, connection.options.logging)
+            });
+        }
+        datasource = connection;
     }
     else {
         const opts = {
-            ...options,
-            logger: options.logger || new pinoLogger_js_1.PinoTypeormLogger(fastify.log)
+            ...rest,
+            logger: rest.logger || new PinoTypeormLogger(fastify.log, rest.logging)
         };
-        datasource = new typeorm_1.DataSource(opts);
+        datasource = new DataSource(opts);
+    }
+    if (datasource.options.synchronize && process.env.NODE_ENV === 'production') {
+        fastify.log.warn('typeorm-fastify-plugin: "synchronize: true" is enabled in production. ' +
+            'This WILL auto-alter your database schema and may cause data loss. ' +
+            'Use migrations instead.');
     }
     if (namespace) {
         if (!fastify.orm) {
             fastify.decorate('orm', Object.create(null));
         }
-        if (fastify.orm[namespace]) {
-            throw new Error(`Namespace ${namespace} is already in use. Please choose a unique name. Existing namespace are ${Object.keys(fastify.orm).join(', ')}.`);
+        const store = fastify.orm;
+        if (store[namespace]) {
+            throw new Error(`Namespace ${namespace} is already in use. Please choose a unique name. Existing namespaces are ${Object.keys(store).join(', ')}.`);
         }
-        else {
-            fastify.orm[namespace] = datasource;
-            await fastify.orm[namespace].initialize();
-            fastify.addHook('onClose', (instance, done) => {
-                instance.orm[namespace].destroy().then(() => {
-                    done();
-                });
-            });
-            return Promise.resolve();
-        }
+        store[namespace] = datasource;
+        await initializeWithRetry(store[namespace], retries, retryDelay, fastify.log);
+        fastify.addHook('onClose', async (instance) => {
+            const ns = instance.orm;
+            await ns[namespace].destroy();
+        });
+        return;
     }
     fastify.decorate('orm', datasource);
-    await fastify.orm.initialize();
-    fastify.addHook('onClose', (instance, done) => {
-        instance.orm.destroy().then(() => {
-            done();
-        });
+    await initializeWithRetry(fastify.orm, retries, retryDelay, fastify.log);
+    fastify.addHook('onClose', async (instance) => {
+        await instance.orm.destroy();
     });
-    return Promise.resolve();
 };
-exports.default = (0, fastify_plugin_1.default)(plugin, {
+export default fp(plugin, {
     fastify: '5.x',
-    name: 'typeorm-fastify-plugin'
+    name: 'typeorm-fastify-plugin',
+    dependencies: []
 });
 //# sourceMappingURL=plugin.js.map

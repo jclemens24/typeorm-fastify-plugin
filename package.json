@@ -1,14 +1,15 @@
 {
 	"name": "typeorm-fastify-plugin",
-	"version": "3.0.0",
+	"version": "4.0.0",
 	"description": "An updated fastify-typeorm-plugin for Fastify and Typeorm",
+	"type": "module",
 	"main": "./build/plugin.js",
 	"types": "./build/plugin.d.ts",
 	"scripts": {
 		"test": "tsc && tap",
 		"build": "tsc -p tsconfig.json",
-		"lint": "concurrently \"npm run lint:frontend\" \"npm run lint:types\"",
-		"lint:frontend": "eslint . --ignore-pattern build/**/* --fix",
+		"lint": "concurrently \"npm run lint:eslint\" \"npm run lint:types\"",
+		"lint:eslint": "eslint . --fix",
 		"lint:types": "tsc --noEmit",
 		"format": "prettier --write \"**/*.{js,ts,md,html,json}\""
 	},
@@ -26,33 +27,61 @@
 	],
 	"homepage": "https://github.com/jclemens24/typeorm-fastify-plugin.git#readme",
 	"devDependencies": {
-		"@eslint/js": "^9.12.0",
+		"@eslint/js": "^10.0.1",
 		"@tapjs/typescript": "^3.1.0",
-		"@types/eslint__js": "^8.42.3",
+		"@types/better-sqlite3": "^7.6.13",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^24.9.1",
-		"@types/react": "^19.1.8",
 		"@types/sinon": "^21.0.0",
-		"@types/tap": "^18.0.0",
+		"better-sqlite3": "^12.9.0",
 		"concurrently": "^9.0.1",
-		"eslint": "^9.12.0",
-		"eslint-config-prettier": "^10.1.5",
+		"eslint": "^10.2.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-prettier": "^5.5.5",
 		"fastify": "^5.0.0",
+		"globals": "^17.5.0",
+		"jiti": "^2.6.1",
 		"mysql2": "^3.11.3",
 		"prettier": "^3.3.3",
+		"reflect-metadata": "^0.2.2",
 		"sinon": "^21.0.0",
 		"tap": "^21.0.0",
 		"ts-node": "^10.9.2",
-		"tslib": "^2.7.0",
+		"typeorm": "^0.3.20",
 		"typescript": "^5.6.3",
-		"typescript-eslint": "^8.8.1"
+		"typescript-eslint": "^8.58.2"
 	},
 	"dependencies": {
-		"fastify-plugin": "^5.0.1",
-		"typeorm": "^0.3.26"
+		"fastify-plugin": "^5.0.1"
 	},
+	"peerDependencies": {
+		"fastify": "^5.0.0",
+		"typeorm": "^0.3.20"
+	},
+	"peerDependenciesMeta": {
+		"fastify": {
+			"optional": false
+		},
+		"typeorm": {
+			"optional": false
+		}
+	},
+	"files": [
+		"build",
+		"LICENSE.md",
+		"README.md"
+	],
 	"exports": {
-		".": "./build/plugin.js"
+		".": {
+			"types": "./build/plugin.d.ts",
+			"import": "./build/plugin.js",
+			"default": "./build/plugin.js"
+		},
+		"./pinoLogger": {
+			"types": "./build/pinoLogger.d.ts",
+			"import": "./build/pinoLogger.js",
+			"default": "./build/pinoLogger.js"
+		}
 	},
 	"tap": {
 		"extends": "./.taprc",

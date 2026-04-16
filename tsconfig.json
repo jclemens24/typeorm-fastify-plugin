@@ -1,13 +1,10 @@
 {
 	"compilerOptions": {
-		"lib": ["ES5", "ES6"],
+		"lib": ["ES2022"],
 		"outDir": "build",
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-		"target": "ES2019",
-		"module": "CommonJS",
-		"moduleResolution": "node",
-		"importHelpers": true,
+		"target": "ES2022",
+		"module": "Node16",
+		"moduleResolution": "Node16",
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"sourceMap": true,
@@ -20,7 +17,7 @@
 		"pretty": true,
 		"strictNullChecks": true,
 		"noUnusedLocals": true,
-		"downlevelIteration": true,
+		"skipLibCheck": true,
 		"removeComments": true,
 		"rootDir": "src"
 	},

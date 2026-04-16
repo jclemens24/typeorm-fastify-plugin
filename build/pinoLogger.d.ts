@@ -1,15 +1,9 @@
-import { Logger, QueryRunner } from 'typeorm';
-import { FastifyBaseLogger } from 'fastify';
-export declare class PinoTypeormLogger implements Logger {
-    private readonly logger;
-    constructor(logger: FastifyBaseLogger);
-    logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): void;
-    logQueryError(error: string | Error, query: string, parameters?: any[], queryRunner?: QueryRunner): void;
-    logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): void;
-    logSchemaBuild(message: string, queryRunner?: QueryRunner): void;
-    logMigration(message: string, queryRunner?: QueryRunner): void;
-    log(level: 'log' | 'info' | 'warn', message: any, queryRunner?: QueryRunner): void;
-    protected stringifyParams(parameters: any[]): string;
-    protected mergeSql(query: string, parameters?: any[]): string;
+import { AbstractLogger } from 'typeorm';
+import type { QueryRunner, LogLevel, LogMessage, LoggerOptions } from 'typeorm';
+import type { FastifyBaseLogger } from 'fastify';
+export declare class PinoTypeormLogger extends AbstractLogger {
+    private readonly pinoLogger;
+    constructor(pinoLogger: FastifyBaseLogger, options?: LoggerOptions);
+    protected writeLog(level: LogLevel, logMessage: LogMessage | string | number | (LogMessage | string | number)[], queryRunner?: QueryRunner): void;
 }
 //# sourceMappingURL=pinoLogger.d.ts.map

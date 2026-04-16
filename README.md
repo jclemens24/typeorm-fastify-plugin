@@ -1,137 +1,189 @@
 # typeorm-fastify-plugin
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jclemens24/typeorm-fastify-plugin/ci.yml)
-![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![npm](https://img.shields.io/npm/v/typeorm-fastify-plugin)
+![node](https://img.shields.io/node/v/typeorm-fastify-plugin)
 
-A Fastify plugin that connects, organizes, and decorates all your database connections to your Fastify server. [Uses TypeORM](https://typeorm.io/)
+A Fastify plugin that connects, organizes, and decorates your [TypeORM](https://typeorm.io/) DataSource instances. Includes health checks, connection retry, transaction helpers, and automatic Pino logging.
 
 ## Install
 
 ```bash
-npm install typeorm-fastify-plugin
+npm install typeorm-fastify-plugin typeorm fastify
 ```
 
-## Usage
+`typeorm` and `fastify` are peer dependencies — install the versions your project needs. You also need the driver for your database (e.g. `pg`, `mysql2`, `better-sqlite3`).
 
-```javascript
-const Fastify = require('fastify');
-const dbConn = require('typeorm-fastify-plugin');
+## Quick Start
 
-const fastify = Fastify();
-
-fastify
-	.register(dbConn, {
-		host: 'localhost',
-		port: 3306,
-		type: 'mysql',
-		database: 'your_database_name',
-		username: 'your_username',
-		password: 'your_database_password',
-		entities: [Users, Products]
-	})
-	.ready();
-
-fastify.listen(3000, () => {
-	console.log('Listening on port 3000');
-});
-```
-
-routes.js
-
-```javascript
-const root = async (fastify, opts) => {
-	fastify.get('/', async function (request, reply) {
-		const userRepository = fastify.orm.getRepository(Users);
-	});
-};
-```
-
-### Fastify server will be decorated with `orm` key and available everywhere in your app
-
----
-
-You can also pass your connection as `connection`
-
-## Example
-
-```javascript
-const fastify = require('fastify');
-const dbConn = require('typeorm-fastify-plugin');
-const { DataSource } = require('typeorm');
-
-const connection = new DataSource({
-	host: 'localhost',
-	port: 3306,
-	type: 'mysql',
-	database: 'your_database_name',
-	username: 'your_username',
-	password: 'your_database_password'
-});
-
-fastify.register(dbConn, { connection: connection });
-```
-
-Note: You need to install the proper driver as a dependency. For example, if using MySQL, install mysql or mysql2.
-
----
-
-## With ES6
-
-```javascript
+```typescript
 import Fastify from 'fastify';
 import plugin from 'typeorm-fastify-plugin';
 
-const fastify = Fastify();
+const fastify = Fastify({ logger: true });
+
 fastify.register(plugin, {
-	/* your config options here */
-});
-```
-
----
-
-## Usage With Multiple Namespaces
-
-Typorm allows you to use multiple `DataSource` instances across your application globally. It only makes sense that this plugin would enable you to do the same thing. Using a namespace is easy but completely optional.
-
-```javascript
-import Fastify from 'fastify';
-import plugin from 'typeorm-fastify-plugin';
-
-const fastify = Fastify();
-fastify.register(plugin, {
-	namespace: 'postgres1',
+	type: 'postgres',
 	host: 'localhost',
 	port: 5432,
-	username: 'test',
-	password: 'test',
-	database: 'test_db',
-	type: 'postgres'
+	username: 'app',
+	password: 'secret',
+	database: 'mydb',
+	entities: [User, Product],
+	synchronize: false
+});
+
+await fastify.ready();
+
+const users = await fastify.orm.getRepository(User).find();
+```
+
+The Fastify instance is decorated with `orm` — a fully initialized TypeORM `DataSource` available everywhere in your app.
+
+## Pre-built DataSource
+
+```typescript
+import { DataSource } from 'typeorm';
+
+const connection = new DataSource({
+	type: 'postgres',
+	host: 'localhost',
+	database: 'mydb',
+	entities: [User]
+});
+
+fastify.register(plugin, { connection });
+```
+
+## Multiple Namespaces
+
+Register multiple databases using the `namespace` option:
+
+```typescript
+fastify.register(plugin, {
+	namespace: 'primary',
+	type: 'postgres',
+	host: 'localhost',
+	database: 'main_db'
+});
+
+fastify.register(plugin, {
+	namespace: 'analytics',
+	type: 'postgres',
+	host: 'localhost',
+	database: 'analytics_db'
+});
+
+await fastify.ready();
+
+fastify.orm['primary'].getRepository(User);
+fastify.orm['analytics'].getRepository(Event);
+```
+
+## Health Check
+
+```typescript
+import { healthCheck } from 'typeorm-fastify-plugin';
+
+fastify.get('/health/db', async () => {
+	const healthy = await healthCheck(fastify.orm);
+	if (!healthy) throw { statusCode: 503, message: 'database unavailable' };
+	return { status: 'ok' };
 });
 ```
 
-This is the only way to initialize a "namespaced" instance using this plugin.
+Runs a driver-aware ping (`SELECT 1`, `SELECT 1 FROM DUAL` for Oracle, etc.). Returns `false` for uninitialized connections or query failures.
 
-The namespace will be available everywhere your fastify server is. For example, to access the namespace declared in the above code: `fastify.orm['postgres1'].getRepository()`
+## Transactions
 
-This is the default behavior of wrapping code in `fastify-plugin` module;
+```typescript
+import { transact } from 'typeorm-fastify-plugin';
+
+const userId = await transact(fastify.orm, async (manager) => {
+	const user = manager.getRepository(User).create({ name: 'Alice' });
+	const saved = await manager.getRepository(User).save(user);
+	return saved.id;
+});
+```
+
+Wraps the callback in `BEGIN` / `COMMIT` with automatic `ROLLBACK` on error.
+
+## Connection Retry
+
+```typescript
+fastify.register(plugin, {
+	type: 'postgres',
+	host: 'localhost',
+	database: 'mydb',
+	retries: 3,
+	retryDelay: 1000 // ms, doubles each attempt (exponential backoff)
+});
+```
+
+If all attempts fail, throws a `TypeOrmPluginError` with sanitized connection details (no password).
 
 ## Logging
 
-You can pass a custom logger or define one of the built-in loggers exposed through TypeORM logging options. If you do not declare a logger and enable Fastify logging, by default a PinoTypeOrm Logger will be used.
+When Fastify logging is enabled and no custom `logger` is provided, the plugin automatically bridges TypeORM logs through Pino via `PinoTypeormLogger`.
 
-```javascript
-import Fastify from 'fastify';
-import plugin from 'typeorm-fastify-plugin';
+```typescript
+const fastify = Fastify({ logger: true });
 
-const fastify = Fastify();
 fastify.register(plugin, {
-	namespace: 'postgres1',
-	host: 'localhost',
-	port: 5432,
-	username: 'test',
-	password: 'test',
-	database: 'test_db',
 	type: 'postgres',
-	logger: new YourCustomLoggerHere() || 'simple-console' || 'whatever'
+	host: 'localhost',
+	database: 'mydb',
+	logging: ['query', 'error']
 });
 ```
+
+You can also use it directly:
+
+```typescript
+import { PinoTypeormLogger } from 'typeorm-fastify-plugin';
+
+const ds = new DataSource({
+	type: 'postgres',
+	logging: ['query', 'error'],
+	logger: new PinoTypeormLogger(fastify.log, ['query', 'error'])
+});
+```
+
+To use a different logger, pass any TypeORM-compatible logger:
+
+```typescript
+fastify.register(plugin, {
+	type: 'postgres',
+	host: 'localhost',
+	database: 'mydb',
+	logger: 'advanced-console'
+});
+```
+
+## API
+
+### Plugin Options
+
+| Option       | Type                | Default | Description                                        |
+| ------------ | ------------------- | ------- | -------------------------------------------------- |
+| `connection` | `DataSource`        | —       | Pre-built DataSource instance                      |
+| `namespace`  | `string`            | —       | Register under a namespace key                     |
+| `retries`    | `number`            | `0`     | Additional connection attempts after first failure |
+| `retryDelay` | `number`            | `1000`  | Base delay in ms (doubles each retry)              |
+| `...rest`    | `DataSourceOptions` | —       | Passed directly to `new DataSource()`              |
+
+### Exports
+
+| Export                  | Description                                                  |
+| ----------------------- | ------------------------------------------------------------ |
+| `default`               | Fastify plugin function                                      |
+| `healthCheck(ds)`       | Returns `Promise<boolean>` — driver-aware connectivity check |
+| `transact(ds, fn)`      | Runs `fn` inside a transaction, returns its result           |
+| `TypeOrmPluginError`    | Error class with `.connectionDetails` and `.cause`           |
+| `PinoTypeormLogger`     | TypeORM logger that routes through Pino                      |
+| `TypeOrmNamespaceStore` | Type for namespace mode (`{ [key]: DataSource }`)            |
+| `DatabaseConfigOptions` | Type for plugin options                                      |
+
+## License
+
+MIT
