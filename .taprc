@@ -80,5 +80,3 @@ include:
 
 coverage-report:
   - text
-
-reporter: base
